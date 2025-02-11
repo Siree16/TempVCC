@@ -3,8 +3,10 @@ import qrcode
 import zbarlight
 from PIL import Image
 import io
+from flask_cors import CORS  # Import CORS
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for frontend requests
 
 # QR Code Generation Endpoint
 @app.route('/generate_qr', methods=['POST'])
