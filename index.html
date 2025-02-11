@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Code Generator</title>
+    <title>QR Code Generator & Decoder</title>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; margin: 50px; }
         input { width: 80%; padding: 10px; margin: 10px 0; }
         button { padding: 10px 20px; cursor: pointer; }
         img { margin-top: 20px; max-width: 200px; }
+        #decodedText { margin-top: 20px; font-size: 18px; color: green; }
     </style>
 </head>
 <body>
@@ -18,6 +19,11 @@
     <br>
     <img id="qrImage" style="display:none;">
 
+    <h2>QR Code Decoder</h2>
+    <input type="file" id="qrFile" accept="image/png, image/jpeg">
+    <button onclick="decodeQRCode()">Decode QR Code</button>
+    <p id="decodedText"></p>
+
     <script>
         function generateQRCode() {
             let text = document.getElementById("textInput").value;
@@ -26,7 +32,7 @@
                 return;
             }
 
-            fetch("http://10.0.2.15:5000/generate_qr", {  // Use VM2 IP
+            fetch("http://192.168.56.102:5000/generate_qr", {  // VM2's Backend IP
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ text: text })
@@ -36,6 +42,27 @@
                 let img = document.getElementById("qrImage");
                 img.src = URL.createObjectURL(blob);
                 img.style.display = "block";
+            })
+            .catch(error => console.error("Error:", error));
+        }
+
+        function decodeQRCode() {
+            let fileInput = document.getElementById("qrFile");
+            if (fileInput.files.length === 0) {
+                alert("Please upload a QR code image.");
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+
+            fetch("http://192.168.56.102:5000/decode_qr", {  // VM2's Backend IP
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("decodedText").innerText = "Decoded Text: " + data.text;
             })
             .catch(error => console.error("Error:", error));
         }
