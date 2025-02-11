@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 50px; }
+        input { width: 80%; padding: 10px; margin: 10px 0; }
+        button { padding: 10px 20px; cursor: pointer; }
+        img { margin-top: 20px; max-width: 200px; }
+    </style>
+</head>
+<body>
+    <h2>QR Code Generator</h2>
+    <input type="text" id="textInput" placeholder="Enter text or URL">
+    <button onclick="generateQRCode()">Generate QR Code</button>
+    <br>
+    <img id="qrImage" style="display:none;">
+
+    <script>
+        function generateQRCode() {
+            let text = document.getElementById("textInput").value;
+            if (!text) {
+                alert("Please enter some text.");
+                return;
+            }
+
+            fetch("http://10.0.2.15:5000/generate_qr", {  // Use VM2 IP
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ text: text })
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                let img = document.getElementById("qrImage");
+                img.src = URL.createObjectURL(blob);
+                img.style.display = "block";
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    </script>
+</body>
+</html>
